@@ -32,6 +32,10 @@ project/
 │   ├── lib/                 # Library code
 │   │   └── helpers/         # Utility functions and shared code
 │   └── types/               # TypeScript type definitions
+├── docs/                    # Project documentation - Technical documentation, guides, and architecture decisions
+│   ├── architecture/        # Architecture documentation - System design, patterns, and technical decisions
+│   ├── guides/              # Development guides - Setup, deployment, and development workflows
+│   └── api/                 # API documentation - API endpoints, schemas, and integration guides
 ├── public/                  # Static assets (if applicable)
 ├── test/                    # Test files
 ├── wrangler.toml            # Cloudflare Workers configuration
@@ -58,19 +62,19 @@ This allows you to import from the src directory using the '@' symbol:
 
 ```typescript
 // Import from routes directory
-import usersRouter from '@/routes/users';
+import usersRouter from "@/routes/users";
 
 // Import from middleware directory
-import { authMiddleware } from '@/middleware/auth';
+import { authMiddleware } from "@/middleware/auth";
 
 // Import from services directory
-import { userService } from '@/services/user-service';
+import { userService } from "@/services/user-service";
 
 // Import from lib directory
-import { formatData } from '@/lib/helpers/format-utils';
+import { formatData } from "@/lib/helpers/format-utils";
 
 // Import from types directory
-import type { UserData } from '@/types/user';
+import type { UserData } from "@/types/user";
 ```
 
 ### NAMING CONVENTIONS
@@ -78,6 +82,7 @@ import type { UserData } from '@/types/user';
 1. **Directories**: Use kebab-case for all directories (e.g., `user-settings/`).
 
 2. **Files**:
+
    - Use kebab-case for all file names (e.g., `auth-service.ts`, `error-handler.ts`).
    - For index files, use `index.ts`.
    - For test files, use `.test.ts` or `.spec.ts` suffix.
@@ -94,36 +99,37 @@ import type { UserData } from '@/types/user';
 - Use descriptive route paths that follow REST conventions.
 - Define route parameters with descriptive names.
 - **Always use absolute imports with the '@' alias** (configured in tsconfig.json to point to the `src` directory):
+
   ```typescript
   // ✅ Good - Using absolute imports
-  import { authMiddleware } from '@/middleware/auth';
-  import { userService } from '@/services/user-service';
-  import { formatDate } from '@/lib/helpers/date-utils';
-  
+  import { authMiddleware } from "@/middleware/auth";
+  import { userService } from "@/services/user-service";
+  import { formatDate } from "@/lib/helpers/date-utils";
+
   // ❌ Bad - Using relative imports
-  import { authMiddleware } from '../middleware/auth';
-  import { userService } from '../services/user-service';
+  import { authMiddleware } from "../middleware/auth";
+  import { userService } from "../services/user-service";
   ```
 
 ```typescript
 // src/routes/users.ts
-import { Hono } from 'hono';
-import { userService } from '@/services/user-service';
+import { Hono } from "hono";
+import { userService } from "@/services/user-service";
 
 const usersRouter = new Hono();
 
-usersRouter.get('/', async (c) => {
+usersRouter.get("/", async (c) => {
   const users = await userService.getAllUsers();
   return c.json(users);
 });
 
-usersRouter.get('/:id', async (c) => {
-  const id = c.req.param('id');
+usersRouter.get("/:id", async (c) => {
+  const id = c.req.param("id");
   const user = await userService.getUserById(id);
   return c.json(user);
 });
 
-usersRouter.post('/', async (c) => {
+usersRouter.post("/", async (c) => {
   const data = await c.req.json();
   const user = await userService.createUser(data);
   return c.json(user, 201);
@@ -140,12 +146,12 @@ export default usersRouter;
 
 ```typescript
 // src/middleware/auth.ts
-import { Context, Next } from 'hono';
+import { Context, Next } from "hono";
 
 export const authMiddleware = async (c: Context, next: Next) => {
-  const token = c.req.header('Authorization')?.split(' ')[1];
+  const token = c.req.header("Authorization")?.split(" ")[1];
   if (!token) {
-    return c.json({ message: 'Unauthorized' }, 401);
+    return c.json({ message: "Unauthorized" }, 401);
   }
   // Validate token
   await next();
@@ -166,12 +172,12 @@ export interface Env {
 }
 
 // src/index.ts
-import { Hono } from 'hono';
-import { Env } from './types/env';
+import { Hono } from "hono";
+import { Env } from "./types/env";
 
 const app = new Hono<{ Bindings: Env }>();
 
-app.get('/config', (c) => {
+app.get("/config", (c) => {
   // Access environment variables
   const dbUrl = c.env.DATABASE_URL;
   return c.json({ configured: !!dbUrl });
